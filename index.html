@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSI Quiz</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+p {
+    margin-bottom: 10px;
+}
+
+input[type="text"],
+input[type="number"],
+button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Submit Button */
+button {
+    background-color: #4CAF50;
+    color: white;
+    font-weight:bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 15px 20px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Result Display */
+#result {
+    margin-top: 30px;
+    padding: 20px;
+    border: 2px solid #4CAF50;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+#result p {
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+#result p:first-child {
+    font-size: 20px;
+    font-weight: bold;
+}
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1>RSI Quiz</h1>
+        <p>Enter your name:</p>
+        <input type="text" id="participantName" required>
+        <div id="questionsContainer"></div>
+        <button onclick="calculateScore()">Submit</button>
+        <div id="result"></div>
+    </div>
+    <script>
+const questions = [
+    ["A", "I will only be satisfied with an unusually high standard of living.", "B", "I wish to have considerable influence over other people."],
+    ["C", "I only feel satisfied if the output from my job has real value in itself.", "D", "I want to be an expert in the things I do."],
+    ["E", "I want to use my creativity abilities in my work.", "F", "It is especially important to me that I work with people whom I like."],
+    ["G", "I would obtain particular satisfaction by being able to freely choose what I do.", "H", "I want to make quite sure that I will be financially secure."],
+    ["I", "I enjoy feeling that people look up to me.", "A", "Not to put too fine a point on it, I want to be wealthy."],
+    ["B", "I want a substantial leadership role.", "C", "I do that which is meaningful to me, even though it may not gain tangible rewards."],
+    ["D", "I want to feel that I have gained hard-won expertise.", "E", "I want to create things, which people associate with me, alone."],
+    ["F", "I seek deep social relationships with other people in my work.", "G", "I would get satisfaction from deciding how I spend my time."],
+    ["A", "I will not be content unless I have ample material possessions.", "D", "I want to demonstrate to my own satisfaction that I really know my discipline."],
+    ["C", "My work is part of my search for meaning in life.", "E", "I want the things that I produce to bear my name."],
+    ["A", "I seek to be able to afford anything I want.", "H", "A job with long-term security really appeals to me."],
+    ["B", "I seek a role, which gives me substantial influence over others.", "D", "I would enjoy being a specialist in my field."],
+    ["C", "It is important to me that my work makes a positive contribution to the wider Community.", "F", "Close relationship with other people at work is important to me."],
+    ["E", "I want my personal creativity to be extensively used.", "G", "I would prefer to be my own master."],
+    ["F", "Close relationship with other people at work will give me special satisfaction.", "H", "I want to look ahead in my life and feel confident that I will always be OK."],
+    ["A", "I want to be able to spend money easily.", "E", "I want to be genuinely innovative in my work."],
+    ["B", "Frankly, I want to tell other people what to do.", "F", "For me, being close to others is really the important thing."],
+    ["C", "I look upon my career as part of a search for greater meaning in life.", "G", "I have found that I want to take full responsibility for my own decisions."],
+    ["D", "I would enjoy a reputation as a real specialist.", "H", "I would only feel relaxed if I was in a secure career."],
+    ["A", "I desire the trappings of wealth.", "F", "I want to get to know new people through my work."],
+    ["B", "I like to play roles, which give me control over how others perform.", "G", "It is important that I can choose for myself the tasks that I undertake."],
+    ["C", "At the end of the day, I do what I believe is important, not that which simply promotes my career.", "H", "I would take great comfort from knowing how I will stand on my retirement day."],
+    ["F", "Close relationship with people at work would make it difficult for me to make a career move.", "I", "Being recognized as part of the ‘Establishment’ is important to me."],
+    ["B", "I would enjoy being in charge of people and resources.", "E", "I want to create things that no one else has done before."],
+    ["C", "I would devote myself to work if I believed that the output would be worthwhile in itself.", "H", "I would take the safe option."],
+    ["E", "I want to do something distinctively different from others.", "H", "I usually take the safe option."],
+    ["B", "I want other people to look to me for leadership.", "I", "Social status is an important motivator for me."],
+    ["A", "A high standard of living attracts me.", "G", "I wish to avoid being tightly controlled by a boss at work."],
+    ["E", "I want my products to have my own name on them.", "I", "I seek formal recognition by others of my achievements."],
+    ["B", "I prefer to be in charge.", "H", "I feel concerned when I cannot see a long way ahead in my career."],
+    ["D", "I would enjoy being a person who had valuable specialist knowledge.", "G", "I would get satisfaction from not having to answer to other people."],
+    ["G", "I dislike being a cog in a large wheel.", "I", "It would give me satisfaction to have a high-status job."],
+    ["A", "I am prepared to do most things for material reward.", "C", "I see work as a means of enriching my personal development."],
+    ["I", "I want to have a prestigious position in any organization for which I work.", "H", "A secure future attracts me every time."],
+    ["F", "When I have congenial social relationships nothing else really matters.", "D", "Being able to make an expert contribution would give me particular satisfaction."],
+    ["I", "I would enjoy the status symbols which come with senior positions.", "D", "I aspire to achieve a high level of specialist competence."]
+];
+
+function generateQuestions() {
+    const questionsContainer = document.getElementById('questionsContainer');
+    questions.forEach((question, index) => {
+        const div = document.createElement('div');
+        div.classList.add('question');
+        div.innerHTML = `
+            <p><strong>Question ${index + 1}:</strong></p>
+            <p>(${question[0]}) ${question[1]}</p>
+            <input type="number" min="0" max="3" id="answer${index + 1}A" placeholder="Points for ${question[0]}" required>
+            <p>(${question[2]}) ${question[3]}</p>
+            <input type="number" min="0" max="3" id="answer${index + 1}B" placeholder="Points for ${question[2]}" required>
+        `;
+        questionsContainer.appendChild(div);
+    });
+}
+
+function calculateScore() {
+    const participantName = document.getElementById('participantName').value.trim();
+    const score = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0, 'F': 0, 'G': 0, 'H': 0, 'I': 0};
+    let isValid = true;
+
+    questions.forEach((question, index) => {
+        const answer1 = parseInt(document.getElementById(`answer${index + 1}A`).value);
+        const answer2 = parseInt(document.getElementById(`answer${index + 1}B`).value);
+        if (isNaN(answer1) || answer1 < 0 || answer1 > 3 || isNaN(answer2) || answer2 < 0 || answer2 > 3) {
+            isValid = false;
+        } else {
+            score[question[0]] += answer1;
+            score[question[2]] += answer2;
+        }
+    });
+
+    if (!isValid) {
+        alert('Please enter valid numbers between 0 and 3 for all fields.');
+        return;
+    }
+
+    const resultElement = document.getElementById('result');
+    let resultHTML = `<p>Total Score for ${participantName}:</p>`;
+    for (const key in score) {
+        resultHTML += `<p>${key}: ${score[key]}</p>`;
+    }
+    resultElement.innerHTML = resultHTML;
+}
+
+window.onload = function() {
+    generateQuestions();
+};
+
+</script>
+</body>
+</html>
